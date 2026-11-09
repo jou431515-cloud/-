@@ -147,6 +147,7 @@
     html.push('</div>');
     html.push('<div class="legend"><span class="role-root">근음</span><span class="role-third">3도</span><span class="role-fifth">5도</span><span class="role-seventh">7도/6도</span><span class="role-tension">텐션</span><span class="role-sus">sus음</span></div>');
     html.push('<p class="small muted" style="margin:10px 0 0">공식: <b class="mono">' + chord.notes.map(function (n) { return D.prettyLabel(n.label); }).join(' – ') + '</b></p>');
+    html.push('<button class="btn ghost small" id="askAi" style="margin-top:10px">💬 이 코드에 대해 AI에게 묻기</button>');
     html.push('</div>');
 
     // 운지
@@ -192,6 +193,11 @@
 
     container.innerHTML = html.join('');
 
+    var askBtn = container.querySelector('#askAi');
+    if (askBtn) askBtn.addEventListener('click', function () {
+      global.AI.ask(chord.symbol + ' 코드에 대해 설명해줘. 구성음은 ' + chord.notes.map(function (n) { return n.name + '(' + n.label + ')'; }).join(', ') + ' 이야. 어떤 느낌이고 언제 자주 쓰는지, 비슷한 코드와 차이도 알려줘.');
+      go('#/ai');
+    });
     container.querySelectorAll('#modeSeg button').forEach(function (b) {
       b.addEventListener('click', function () {
         state.mode = b.getAttribute('data-mode');
@@ -264,6 +270,7 @@
     if (page === 'chord') renderSearch(decodeURIComponent(arg));
     else if (page === 'list') renderList();
     else if (page === 'theory') renderTheory(arg ? decodeURIComponent(arg) : null);
+    else if (page === 'ai') { setTab('ai', 'AI 질문'); global.AI.render(view); }
     else renderSearch('');
     if (page !== 'theory' || !arg) window.scrollTo(0, 0);
   }
