@@ -21,7 +21,7 @@
   --tabbar-h: 62px;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #14161a;
     --surface: #1d2025;
     --surface-2: #272a31;
@@ -39,7 +39,28 @@
     --c-seventh: #4cc38a;
     --c-tension: #b38cf0;
     --c-sus: #2ec4b6;
+    color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+    --bg: #14161a;
+    --surface: #1d2025;
+    --surface-2: #272a31;
+    --text: #ecebe8;
+    --muted: #9a9ca3;
+    --line: #33363e;
+    --accent: #fb923c;
+    --accent-soft: #3a2618;
+    --fret: #5b5e66;
+    --string: #8a8d95;
+    --nut: #ecebe8;
+    --c-root: #ff6369;
+    --c-third: #ffa53d;
+    --c-fifth: #5aa2ff;
+    --c-seventh: #4cc38a;
+    --c-tension: #b38cf0;
+    --c-sus: #2ec4b6;
+    color-scheme: dark;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -62,7 +83,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 .topbar h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
 
-main { max-width: 760px; margin: 0 auto; padding: 14px 16px 24px; }
+main { max-width: 760px; margin: 0 auto; padding-block: 14px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
