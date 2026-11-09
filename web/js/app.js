@@ -128,7 +128,8 @@
     var exp = E.explainStack(chord);
     var voicings = E.generateVoicings(chord);
     var bestIdx = 0;
-    voicings.forEach(function (v, i) { if (v.score > voicings[bestIdx].score) bestIdx = i; });
+    voicings.forEach(function (v, i) { if (v.rec > voicings[bestIdx].rec) bestIdx = i; });
+    if (bestIdx > 0) { voicings.unshift(voicings.splice(bestIdx, 1)[0]); bestIdx = 0; }
 
     var html = [];
     // 머리
@@ -158,7 +159,7 @@
     html.push('<div class="voicings">');
     voicings.forEach(function (v, i) {
       html.push('<div class="voicing' + (i === bestIdx ? ' best' : '') + '">');
-      html.push('<span class="badge">' + (i === bestIdx ? '★ 추천' : '&nbsp;') + '</span>');
+      html.push('<span class="badge">' + (i === bestIdx ? '★ 추천' : v.std ? '기본형' : '&nbsp;') + '</span>');
       html.push(D.chordDiagram(chord, v, state.mode));
       var hasOpen = v.frets.indexOf(0) >= 0;
       html.push('<div class="pos">' + (v.baseFret === 1 ? (hasOpen ? '개방현 자리' : '1프렛 자리') : v.baseFret + '프렛 자리') + '</div>');

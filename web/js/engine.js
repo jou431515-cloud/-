@@ -446,6 +446,11 @@
     var found = {};
     var nStr = tuning.length;
 
+    // 1) 기타리스트들이 실제로 많이 쓰는 표준 모양을 먼저 등록 (추천 우선)
+    if (tuning === STANDARD_TUNING) {
+      standardShapes(chord).forEach(function (fr) { evaluate(fr, true); });
+    }
+
     for (var lo = 1; lo <= maxFret - span; lo++) {
       var hi = lo + span;
       var cands = [];
@@ -470,7 +475,7 @@
       }
     }
 
-    function evaluate(frets) {
+    function evaluate(frets, std) {
       var key = frets.join(',');
       if (found[key]) return;
       var sounding = [];
@@ -527,10 +532,22 @@
       score -= (fretted.length ? minF : 0) * 0.12;
       score -= Math.max(0, maxF - minF - 2) * 0.8;
       // 3도/7도가 너무 겹치면 감점, 근음이 맨 위인 것은 약간 감점
-      Object.keys(pcs).forEach(function (pc) { if (pcs[pc] > 2) score -= (pcs[pc] - 2) * 1.2; });
+      Object.keys(pcs).forEach(function (pc) { if (+pc !== chord.root.pc && pcs[pc] > 2) score -= (pcs[pc] - 2) * 0.6; });
       // 높은 줄 몇 개를 막고 위쪽 개방현이 섞인 높은 포지션은 감점 (손이 멀어짐)
       if (opens && fretted.length && minF > 4) score -= 3;
       if (fingers === 4 && !barre) score -= 0.8;
+
+      // 추천 점수: "잡기 쉬운가" 위주 (개방현·낮은 자리·적은 손가락·작은 벌림)
+      var rec = Math.min(sounding.length, 6) * 0.9;
+      rec += opens * 0.5;
+      if (barre) rec -= (barre.to - barre.from >= 4 ? 2.2 : 1.6);
+      rec -= fingers * 0.55;
+      if (fretted.length) rec -= Math.max(0, maxF - minF - 1) * 1.3;
+      rec -= (fretted.length ? minF : 0) * 0.4;
+      rec -= interiorMutes * 2.5;
+      if (opens && fretted.length && minF > 3) rec -= 2;
+      // 손가락 4개 + 바레 (바레 위로 3손가락) 은 어려움
+      if (barre && fingers >= 4 && maxF - minF >= 2) rec -= 0.6;
 
       var notesOut = frets.map(function (f, st) {
         if (f < 0) return null;
@@ -543,21 +560,30 @@
         notes: notesOut,
         barre: barre,
         score: score,
+        rec: rec,
         minFret: fretted.length ? minF : 0,
         maxFret: maxF,
         baseFret: (maxF <= 4) ? 1 : minF,
-        key: key
+        key: key,
+        std: !!std
       };
+      if (std) {
+        // 표준 모양: 개방 코드 > 낮은 자리 바레 코드 순으로 추천
+        found[key].rec = 20 - (fretted.length ? minF : 0) * 0.5 - (barre ? 1.5 : 0) + (opens ? 1 : 0);
+        found[key].score += 4;
+      }
     }
 
     var all = Object.keys(found).map(function (k) { return found[k]; });
     all.sort(function (a, b) { return b.score - a.score; });
 
     // 자리(포지션)별로 고르게 고르기
-    var picked = [];
+    var picked = all.filter(function (v) { return v.std; }).slice(0, 6);
     var perPos = {};
+    picked.forEach(function (v) { var b = v.minFret <= 0 ? 0 : v.minFret; perPos[b] = (perPos[b] || 0) + 1; });
     for (var a = 0; a < all.length && picked.length < limit; a++) {
       var v = all[a];
+      if (v.std) continue;
       var bucket = v.minFret <= 0 ? 0 : v.minFret;
       var cnt = perPos[bucket] || 0;
       if (cnt >= 2) continue;
@@ -569,6 +595,89 @@
     }
     picked.sort(function (a, b) { return (a.minFret - b.minFret) || (b.score - a.score); });
     return picked;
+  }
+
+  // ── 표준 운지 모양 ──
+  // 개방 코드 (근음 + 코드 종류 → 운지). x = 치지 않음
+  var OPEN_SHAPES = {
+    'C': ['x32010'], 'A': ['x02220'], 'G': ['320003', '320033'], 'E': ['022100'], 'D': ['xx0232'],
+    'Am': ['x02210'], 'Em': ['022000'], 'Dm': ['xx0231'],
+    'C7': ['x32310'], 'A7': ['x02020'], 'G7': ['320001'], 'E7': ['020100'], 'D7': ['xx0212'], 'B7': ['x21202'],
+    'Am7': ['x02010'], 'Em7': ['022030', '020000'], 'Dm7': ['xx0211'],
+    'Cmaj7': ['x32000'], 'Fmaj7': ['xx3210'], 'Amaj7': ['x02120'], 'Dmaj7': ['xx0222'], 'Emaj7': ['021100'], 'Gmaj7': ['320002'],
+    'Asus4': ['x02230'], 'Dsus4': ['xx0233'], 'Esus4': ['022200'], 'Asus2': ['x02200'], 'Dsus2': ['xx0230'],
+    'Cadd9': ['x32030'], 'Gadd9': ['300203'], 'E5': ['022xxx'], 'A5': ['x022xx'], 'D5': ['xx023x'],
+    'A6': ['x02222'], 'C6': ['x32210'], 'D6': ['xx0202'], 'E6': ['022120'], 'G6': ['320000'],
+    'Am6': ['x02212'], 'Em6': ['022020'], 'Dm6': ['xx0201'],
+    'Bm7b5': ['x2323x'], 'E9': ['020102'], 'A7sus4': ['x02030'], 'D7sus4': ['xx0213'], 'E7sus4': ['020200'],
+    'Asus2sus4': []
+  };
+  // 옮겨 쓰는 모양: E폼(6번줄 근음), A폼(5번줄 근음). 숫자는 근음 프렛 기준 상대값, null = 치지 않음
+  var MOVABLE_SHAPES = {
+    '':      [[0, 2, 2, 1, 0, 0], [null, 0, 2, 2, 2, 0]],
+    'm':     [[0, 2, 2, 0, 0, 0], [null, 0, 2, 2, 1, 0]],
+    '7':     [[0, 2, 0, 1, 0, 0], [null, 0, 2, 0, 2, 0]],
+    'm7':    [[0, 2, 0, 0, 0, 0], [null, 0, 2, 0, 1, 0]],
+    'maj7':  [[0, null, 1, 1, 0, null], [null, 0, 2, 1, 2, 0]],
+    'mMaj7': [[0, null, 1, 0, 0, null], [null, 0, 2, 1, 1, 0]],
+    'm7b5':  [[0, null, 0, 0, -1, null], [null, 0, 1, 0, 1, null]],
+    'dim7':  [[0, null, -1, 0, -1, null], [null, 0, 1, -1, 1, null]],
+    'dim':   [[null, 0, 1, 2, 1, null]],
+    'aug':   [[0, null, 2, 1, 1, null], [null, 0, -1, -2, -2, null]],
+    'sus4':  [[0, 2, 2, 2, 0, 0], [null, 0, 2, 2, 3, 0]],
+    'sus2':  [[null, 0, 2, 2, 0, 0]],
+    '7sus4': [[0, 2, 0, 2, 0, 0], [null, 0, 2, 0, 3, 0]],
+    '5':     [[0, 2, 2, null, null, null], [null, 0, 2, 2, null, null]],
+    '6':     [[0, null, -1, -1, 0, null], [null, 0, 2, 2, 2, 2]],
+    'm6':    [[0, null, -1, 0, 0, null], [null, 0, 2, -1, 1, null]],
+    '9':     [[null, 0, -1, 0, 0, null]],
+    'm9':    [[null, 0, -2, 0, 0, null]],
+    'maj9':  [[null, 0, -1, 1, 0, null]],
+    '7b9':   [[null, 0, -1, 0, -1, null]],
+    '7#9':   [[null, 0, -1, 0, 1, null]],
+    '13':    [[0, null, 0, 1, 2, null], [null, 0, null, 0, 2, 2]],
+    'add9':  [[null, 0, -1, -3, 0, null]]
+  };
+
+  function shapeFrets(arr, rootFret) {
+    var out = [];
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] === null) { out.push(-1); continue; }
+      var f = arr[i] + rootFret;
+      if (f < 0) return null;
+      out.push(f);
+    }
+    return out;
+  }
+
+  function standardShapes(chord) {
+    if (chord.bass && chord.bass.pc !== chord.root.pc) return [];
+    var sig = chord.notes.map(function (n) { return n.label; }).join(',');
+    var t = TYPE_BY_SIG[sig];
+    if (!t) return [];
+    var res = [];
+    // 개방 코드: 같은 높이의 음이름이면 철자 상관없이 (예: A# = Bb)
+    Object.keys(OPEN_SHAPES).forEach(function (name) {
+      var r = parseChord(name);
+      if (!r.ok || r.chord.root.pc !== chord.root.pc) return;
+      if (r.chord.notes.map(function (n) { return n.label; }).join(',') !== sig) return;
+      OPEN_SHAPES[name].forEach(function (str) {
+        res.push(str.split('').map(function (c) { return c === 'x' ? -1 : +c; }));
+      });
+    });
+    var mv = MOVABLE_SHAPES[t.sym];
+    if (mv) {
+      mv.forEach(function (shape) {
+        var rootString = shape[0] !== null ? 0 : 1;
+        var base = mod(chord.root.pc - mod(STANDARD_TUNING[rootString], 12), 12);
+        [base, base + 12].forEach(function (rf) {
+          if (rf < 1 || rf > 12) return; // 0프렛은 개방 코드 목록에서 처리
+          var fr = shapeFrets(shape, rf);
+          if (fr) res.push(fr);
+        });
+      });
+    }
+    return res;
   }
 
   function diffCount(a, b) {
