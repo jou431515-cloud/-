@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 코드 다이어그램 모양 아이콘 (108dp 캔버스, 가운데 66dp 안전 영역) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- 너트 -->
+    <path android:fillColor="#FFFFFF" android:pathData="M34,32h40v4h-40z" />
+    <!-- 프렛 -->
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.7" android:pathData="M34,46h40v1.5h-40zM34,58h40v1.5h-40zM34,70h40v1.5h-40z" />
+    <!-- 줄 6개 -->
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.7" android:pathData="M34,32h1.5v44h-1.5zM41.7,32h1.5v44h-1.5zM49.4,32h1.5v44h-1.5zM57.1,32h1.5v44h-1.5zM64.8,32h1.5v44h-1.5zM72.5,32h1.5v44h-1.5z" />
+    <!-- 운지 점 -->
+    <path android:fillColor="#FFFFFF" android:pathData="M42.45,64m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M50.15,52m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M65.55,41m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+</vector>
