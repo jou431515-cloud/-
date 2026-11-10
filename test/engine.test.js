@@ -54,3 +54,14 @@ for (const r of roots) for (const t of E.CHORD_TYPES) {
 }
 console.log('운지가 없는 코드:', empty.length ? empty.join(', ') : '없음');
 console.log('모든 테스트 통과');
+
+// 추천(첫 번째) 운지 = 가장 대중적인 운지
+function rec(sym) {
+  const v = E.generateVoicings(E.parseChord(sym).chord);
+  let b = v[0]; for (const x of v) if (x.rec > b.rec) b = x;
+  return b.frets.map(f => f < 0 ? 'x' : f).join('');
+}
+for (const [name, list] of Object.entries(E.OPEN_SHAPES)) assert.strictEqual(rec(name), list[0], name + ' 추천');
+const popular = { 'Cm': 'x35543', 'Bb': 'x13331', 'F#m': '244222', 'B': 'x24442', 'Gm': '355333', 'C#m': 'x46654', 'F#': '244322', 'Eb': 'x68886', 'Fm7': '131111', 'Bb7': 'x13131' };
+for (const [sym, want] of Object.entries(popular)) assert.strictEqual(rec(sym), want, sym + ' 추천');
+console.log('추천 운지 테스트 통과');
