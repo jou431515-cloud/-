@@ -5,7 +5,7 @@
 ## 구조
 - `web/` — 앱 화면과 코드 엔진 (HTML/CSS/JS). 브라우저에서 `web/index.html` 을 열어도 그대로 동작.
   - `js/engine.js` — 코드 이름 해석, 구성음/도수, 운지 자동 생성
-  - `js/diagram.js` — 지판 SVG, `js/audio.js` — 소리, `js/theory.js` — 화성학 레슨, `js/app.js` — 화면
+  - `js/diagram.js` — 지판 SVG, `js/audio.js` — 소리, `js/theory.js` — 화성학 레슨, `js/practice.js` — 코드 퀴즈·청음 연습, `js/app.js` — 화면
 - `app/` — 안드로이드 WebView 껍데기 (web 폴더를 assets 로 포함)
 - `.github/workflows/build-apk.yml` — main 에 push 하면 APK 를 빌드해 Releases 에 올림
 

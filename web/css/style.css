@@ -260,3 +260,43 @@ a.chip.on { color: #fff; }
 .chatbox { display: flex; gap: 8px; margin-top: 12px; align-items: stretch; }
 .chatbox textarea { flex: 1; min-width: 0; resize: vertical; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-size: 16px; }
 .btn:disabled { opacity: .6; }
+
+/* 즐겨찾기 */
+.fav { order: 3; margin-left: auto; border: 0; background: none; font-size: 26px; line-height: 1; cursor: pointer; color: var(--muted); padding: 4px; }
+.fav.on { color: #f5b301; }
+
+/* 연습 (퀴즈 / 청음) */
+.practice-tabs { display: flex; margin-bottom: 12px; }
+.practice-tabs a { flex: 1; text-align: center; padding: 9px 6px; border-radius: 8px; font-size: 15px; color: var(--muted); text-decoration: none; }
+.practice-tabs a.on { background: var(--surface); color: var(--text); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.ear-kind { display: flex; margin-bottom: 10px; }
+.ear-kind button { flex: 1; }
+.lv-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.lv { border: 1px solid var(--line); background: var(--surface); color: var(--text); border-radius: 12px; padding: 8px 6px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; text-align: center; }
+.lv b { font-size: 14px; }
+.lv small { font-size: 11px; color: var(--muted); line-height: 1.3; }
+.lv.on { border-color: var(--accent); background: var(--accent-soft); }
+.scorebar { display: flex; justify-content: space-between; gap: 8px; margin: 10px 2px; font-size: 13px; color: var(--muted); }
+.scorebar b { color: var(--text); }
+.quiz .qtitle { font-size: 18px; line-height: 1.4; margin-bottom: 10px; }
+.qmark { display: inline-block; min-width: 22px; text-align: center; border-radius: 999px; background: var(--accent); color: #fff; font-weight: 800; }
+.qdiagram { display: flex; justify-content: center; }
+.qdiagram svg { width: 100%; max-width: 220px; height: auto; }
+.center { text-align: center; }
+.frets.center { font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.choices.wide { grid-template-columns: 1fr; }
+.choice { border: 1.5px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 12px; min-height: 52px; padding: 8px 10px; font-size: 17px; font-weight: 700; cursor: pointer; }
+.choice small { display: block; font-size: 11px; font-weight: 500; color: var(--muted); }
+.choice.right { border-color: var(--c-seventh); background: color-mix(in srgb, var(--c-seventh) 18%, var(--surface)); }
+.choice.wrong { border-color: var(--c-root); background: color-mix(in srgb, var(--c-root) 18%, var(--surface)); }
+.choice:disabled { cursor: default; }
+.qtools { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
+.qtools a.btn { display: inline-flex; align-items: center; text-decoration: none; }
+.ear-play { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
+.btn.big { min-height: 56px; padding: 0 26px; font-size: 18px; }
+.feedback { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); }
+.feedback.ok { border-left: 4px solid var(--c-seventh); }
+.feedback.no { border-left: 4px solid var(--c-root); }
+.feedback p { margin: 8px 0; }
+.fb-title { font-size: 18px; font-weight: 800; }

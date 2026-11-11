@@ -23,7 +23,9 @@
    * 코드 다이어그램 (세로형: 왼쪽이 6번줄)
    * mode: 'degree' → 점 안에 도수, 아래에 음이름 / 'note' → 반대로
    */
-  function chordDiagram(chord, v, mode) {
+  function chordDiagram(chord, v, mode, mark) {
+    // mode 'blank': 퀴즈용. 점에 글자 없이 회색, mark 번째 줄만 '?' 로 강조
+    var blank = mode === 'blank';
     var W = 156, left = 32, sp = 20, top = 30, fs = 27, nFrets = 5;
     var H = top + fs * nFrets + 30;
     var base = v.baseFret;
@@ -62,6 +64,10 @@
       var role = roleFor(chord, n.label);
       var col = ROLE_VAR[role];
       var inner = mode === 'note' ? n.name : prettyLabel(n.label);
+      if (blank) {
+        col = st === mark ? 'var(--accent)' : 'var(--text)';
+        inner = st === mark ? '?' : '';
+      }
       var fsz = inner.length >= 3 ? 8.5 : inner.length === 2 ? 10 : 11.5;
       if (fr === 0) {
         out.push('<circle cx="' + cx + '" cy="' + (top - 13) + '" r="8.5" fill="none" stroke="' + col + '" stroke-width="2"/>');
@@ -73,6 +79,7 @@
       }
       // 아래 줄: 반대 정보
       var below = mode === 'note' ? prettyLabel(n.label) : n.name;
+      if (blank) continue;
       out.push('<text x="' + cx + '" y="' + (top + fs * nFrets + 17) + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="' + col + '">' + esc(below) + '</text>');
     }
     out.push('</svg>');

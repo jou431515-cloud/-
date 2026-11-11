@@ -94,6 +94,12 @@
     });
     html.push('</div></div>');
 
+    var favs = store('favs') || [];
+    if (favs.length) {
+      html.push('<div class="card recent"><h2>★ 즐겨찾기</h2><div class="suggest">');
+      favs.forEach(function (r) { html.push('<a class="chip" href="' + chordHash(r) + '">' + esc(prettySym(r)) + '</a>'); });
+      html.push('</div></div>');
+    }
     var recent = store('recent') || [];
     if (recent.length) {
       html.push('<div class="card recent"><h2>최근 본 코드</h2><div class="suggest">');
@@ -134,7 +140,9 @@
     var html = [];
     // 머리
     html.push('<div class="card">');
+    var isFav = (store('favs') || []).indexOf(chord.symbol) >= 0;
     html.push('<div class="chord-head"><div class="chord-name">' + esc(chord.pretty) + '</div>');
+    html.push('<button class="fav' + (isFav ? ' on' : '') + '" id="favBtn" aria-label="즐겨찾기">' + (isFav ? '★' : '☆') + '</button>');
     html.push('<div class="chord-ko">' + esc(chord.type ? chord.type.ko : '확장/변형 코드') + (chord.bass ? ' · 슬래시 코드' : '') + '</div></div>');
     if (chord.type) html.push('<p class="chord-desc">' + esc(chord.type.desc) + '</p>');
     html.push('<div class="tones">');
@@ -193,6 +201,15 @@
 
     container.innerHTML = html.join('');
 
+    var favBtn = container.querySelector('#favBtn');
+    favBtn.addEventListener('click', function () {
+      var favs = (store('favs') || []).filter(function (r) { return r !== chord.symbol; });
+      var on = !favBtn.classList.contains('on');
+      if (on) favs.unshift(chord.symbol);
+      store('favs', favs.slice(0, 30));
+      favBtn.classList.toggle('on', on);
+      favBtn.textContent = on ? '★' : '☆';
+    });
     var askBtn = container.querySelector('#askAi');
     if (askBtn) askBtn.addEventListener('click', function () {
       global.AI.ask(chord.symbol + ' 코드에 대해 설명해줘. 구성음은 ' + chord.notes.map(function (n) { return n.name + '(' + n.label + ')'; }).join(', ') + ' 이야. 어떤 느낌이고 언제 자주 쓰는지, 비슷한 코드와 차이도 알려줘.');
@@ -270,6 +287,7 @@
     if (page === 'chord') renderSearch(decodeURIComponent(arg));
     else if (page === 'list') renderList();
     else if (page === 'theory') renderTheory(arg ? decodeURIComponent(arg) : null);
+    else if (page === 'practice') { setTab('practice', '연습'); global.Practice.render(view, arg); }
     else if (page === 'ai') { setTab('ai', 'AI 질문'); global.AI.render(view); }
     else renderSearch('');
     if (page !== 'theory' || !arg) window.scrollTo(0, 0);
